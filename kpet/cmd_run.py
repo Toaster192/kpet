@@ -120,12 +120,35 @@ def build(cmds_parser, common_parser):
     )
     build_common(generate_parser, generate=True)
 
-    print_test_cases_parser = action_subparser.add_parser(
-        "print-test-cases",
-        help="Print test cases applicable to the patches",
+    test_parser = action_subparser.add_parser(
+        "test",
+        help="",
         parents=[common_parser],
     )
-    build_common(print_test_cases_parser, generate=False)
+    build_common(test_parser, generate=False)
+
+    test_subaction_subparser = test_parser.add_subparsers(
+        title="test_subaction",
+        dest="test_subaction",
+    )
+    test_subaction_subparser.add_parser(
+        "list",
+        help='Print test cases applicable to the patches',
+        parents=[common_parser],
+    )
+    # test_parser = action_subparser.add_parser(
+    #     "test",
+    #     help="Print test cases applicable to the patches",
+    #     parents=[common_parser],
+    # )
+    #
+    # test_parser.add_argument(
+    #     'test_subaction',
+    #     nargs='?',
+    #     type=str,
+    #     help='Test subcommands'
+    # )
+    # build_common(test_parser, generate=False)
 
 
 # pylint: disable=too-many-branches
@@ -237,7 +260,7 @@ def main_generate(args, baserun, database):
 # pylint: disable=unused-argument
 def main_print_test_cases(args, baserun):
     """
-    Execute `run print-test-cases`
+    Execute `run test list`
 
     Args:
         args:       Parsed command-line arguments.
@@ -260,7 +283,10 @@ def main(args):
 
     if args.action == 'generate':
         main_generate(args, main_create_baserun(args, database), database)
-    elif args.action == 'print-test-cases':
-        main_print_test_cases(args, main_create_baserun(args, database))
+    elif args.action == 'test':
+        if args.test_subaction == 'list':
+            main_print_test_cases(args, main_create_baserun(args, database))
+        else:
+            misc.raise_action_not_found(args.test_subaction, args.command)
     else:
         misc.raise_action_not_found(args.action, args.command)
